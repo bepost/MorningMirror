@@ -82,14 +82,18 @@ jobs:
         working-directory: ./extension
         run: |
           cd dist
-          zip -r ../MorningMirror.zip .
+          if [ "${{ github.event_name }}" == "release" ]; then
+            zip -r ../MorningMirror-${{ github.event.release.tag_name }}.zip .
+          else
+            zip -r ../MorningMirror.zip .
+          fi
           cd ..
 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: extension-build
-          path: extension/MorningMirror.zip
+          path: extension/MorningMirror*.zip
           retention-days: 30
 
       - name: 🚀 Upload to Chrome Web Store
@@ -97,9 +101,15 @@ jobs:
         working-directory: ./extension
         run: |
           npx chrome-webstore-upload upload \
-            --source MorningMirror.zip \
+            --source MorningMirror-${{ github.event.release.tag_name }}.zip \
             --extension-id ${{ secrets.EXTENSION_ID }} \
             --client-id ${{ secrets.CLIENT_ID }} \
             --client-secret ${{ secrets.CLIENT_SECRET }} \
             --refresh-token ${{ secrets.REFRESH_TOKEN }} \
             --publish
+
+      - name: 📎 Attach extension to GitHub release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: extension/MorningMirror-${{ github.event.release.tag_name }}.zip
