@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Morning Mirror",
+  "version": "0.1",
+  "description": "Shows one inspirational quote every time you open a new tab.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": [],
+  "web_accessible_resources": [],
+  "action": {
+    "default_title": "Morning Mirror"
+  }
+}
