@@ -1,0 +1,99 @@
+name: 🔨 Build Extension
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "extension/**"
+      - ".github/workflows/build-extension.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "extension/**"
+      - ".github/workflows/build-extension.yml"
+  release:
+    types: [published]
+
+jobs:
+  check-changes:
+    name: 🔍 Check Changes
+    runs-on: ubuntu-latest
+    outputs:
+      extension-changed: ${{ steps.changes.outputs.extension }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Check for changes in extension folder
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            extension:
+              - "extension/**"
+              - ".github/workflows/build-extension.yml"
+
+  build:
+    name: 🏗️ Build & Package
+    needs: check-changes
+    if: needs.check-changes.outputs.extension-changed == 'true' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: "extension/package-lock.json"
+
+      - name: 📦 Install dependencies
+        working-directory: ./extension
+        run: npm ci
+
+      - name: 🔨 Build extension (development)
+        if: github.event_name != 'release'
+        working-directory: ./extension
+        run: npm run build
+
+      - name: 🏗️ Build extension (production)
+        if: github.event_name == 'release'
+        working-directory: ./extension
+        run: npm run build-prod
+
+      - name: 📦 Create zip archive for development builds
+        if: github.event_name != 'release'
+        working-directory: ./extension
+        run: |
+          cd dist
+          zip -r ../MorningMirror-${{ github.sha }}.zip .
+          cd ..
+
+      - name: 📦 Create zip archive for production release
+        if: github.event_name == 'release'
+        working-directory: ./extension
+        run: |
+          cd dist
+          zip -r ../MorningMirror-${{ github.event.release.tag_name }}.zip .
+          cd ..
+
+      - name: ⬆️ Upload development build artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-build-${{ github.sha }}
+          path: extension/MorningMirror-${{ github.sha }}.zip
+          retention-days: 30
+
+      - name: 🚀 Upload production release artifacts
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-release-${{ github.event.release.tag_name }}
+          path: extension/MorningMirror-${{ github.event.release.tag_name }}.zip
+          retention-days: 90
