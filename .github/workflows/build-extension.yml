@@ -48,8 +48,8 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts"
-          cache: "npm"
+          node-version: "lts/*"
+          cache: npm
           cache-dependency-path: "extension/package-lock.json"
 
       - name: 📦 Install dependencies
