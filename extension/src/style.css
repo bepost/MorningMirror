@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
+body {
+  margin: 0;
+  padding: 40px;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #1e1e1e, #2c2c2c);
+  color: #f0f0f0;
+  font-family: "Playfair Display", serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+#reset {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: none
+}
+
+header {
+  text-align: center;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #aaa;
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+}
+
+blockquote {
+  font-size: 2rem;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
+  max-width: 40ch;
+  hyphens: auto;
+  word-wrap: break-word;
+}
+
+cite {
+  display: block;
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #ccc;
+  font-style: normal;
+}
+
+
+/* Fade-in effect */
+#quote {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#quote.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  #quote {
+    font-size: 1.5rem;
+  }
+
+  .author {
+    font-size: 1rem;
+  }
+}
