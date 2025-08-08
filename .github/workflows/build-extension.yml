@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - "extension/**"
+      - ".github/workflows/build-extension.yml"
   pull_request:
     branches: [main]
     paths:
       - "extension/**"
+      - ".github/workflows/build-extension.yml"
   release:
     types: [published]
 
