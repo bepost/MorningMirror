@@ -66,34 +66,40 @@ jobs:
         working-directory: ./extension
         run: npm run build-prod
 
-      - name: 📦 Create zip archive for development builds
-        if: github.event_name != 'release'
-        working-directory: ./extension
-        run: |
-          cd dist
-          zip -r ../MorningMirror-${{ github.sha }}.zip .
-          cd ..
-
-      - name: 📦 Create zip archive for production release
+      - name: 🏷️ Update manifest version
         if: github.event_name == 'release'
         working-directory: ./extension
         run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+
+          # Update manifest.json version
+          jq --arg version "$VERSION" '.version = $version' public/manifest.json > dist/manifest.json
+
+          echo "Updated manifest version to: $VERSION"
+
+      - name: 📦 Create zip archive
+        working-directory: ./extension
+        run: |
           cd dist
-          zip -r ../MorningMirror-${{ github.event.release.tag_name }}.zip .
+          zip -r ../MorningMirror.zip .
           cd ..
 
-      - name: ⬆️ Upload development build artifacts
-        if: github.event_name != 'release'
+      - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: extension-build-${{ github.sha }}
-          path: extension/MorningMirror-${{ github.sha }}.zip
+          name: extension-build
+          path: extension/MorningMirror.zip
           retention-days: 30
 
-      - name: 🚀 Upload production release artifacts
+      - name: 🚀 Upload to Chrome Web Store
         if: github.event_name == 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: extension-release-${{ github.event.release.tag_name }}
-          path: extension/MorningMirror-${{ github.event.release.tag_name }}.zip
-          retention-days: 90
+        working-directory: ./extension
+        run: |
+          npx chrome-webstore-upload upload \
+            --source MorningMirror.zip \
+            --extension-id ${{ secrets.EXTENSION_ID }} \
+            --client-id ${{ secrets.CLIENT_ID }} \
+            --client-secret ${{ secrets.CLIENT_SECRET }} \
+            --refresh-token ${{ secrets.REFRESH_TOKEN }} \
+            --publish
