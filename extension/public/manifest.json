@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Morning Mirror",
   "version": "0.0.0",
-  "description": "Shows one inspirational quote per day, every time you open a new tab.",
+  "description": "Thoughtful words for a sharper day.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
