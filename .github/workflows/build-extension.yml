@@ -110,6 +110,10 @@ jobs:
 
       - name: 📎 Attach extension to GitHub release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: extension/MorningMirror-${{ github.event.release.tag_name }}.zip
+        working-directory: ./extension
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} \
+            MorningMirror-${{ github.event.release.tag_name }}.zip \
+            --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
